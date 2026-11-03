@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Priorité Bonneville</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-  <link rel="stylesheet" href="taskpane.css?v=3">
+  <link rel="stylesheet" href="taskpane.css?v=4">
 </head>
 <body>
   <main id="vuePrincipale">
@@ -31,24 +31,9 @@
       <p class="erreur" id="erreurNiveau" role="alert"></p>
     </section>
 
-    <button type="button" class="lien" id="lienAjouterProjet" hidden>Ajouter un projet</button>
-
-    <section class="projet" id="sectionProjet" aria-labelledby="titreProjet" hidden>
-      <h2 id="titreProjet">Projet <span class="facultatif">facultatif</span></h2>
-      <div class="types" role="radiogroup" aria-labelledby="titreProjet">
-        <button type="button" class="type" role="radio" aria-checked="false" data-type="M">Multi</button>
-        <button type="button" class="type" role="radio" aria-checked="false" data-type="R">Résidentiel</button>
-      </div>
-      <label class="champ" for="numeroProjet">
-        <span>Numéro de projet</span>
-        <input id="numeroProjet" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="12345">
-      </label>
-      <p class="erreur" id="erreurProjet" role="alert"></p>
-    </section>
-
-    <div class="actions">
+    <div class="actions actions-panneau">
+      <button type="button" class="lien" id="lienAjouterProjet">Ajouter un projet</button>
       <button type="button" class="bouton" id="btnRetirer">Retirer</button>
-      <button type="button" class="bouton bouton-principal" id="btnAppliquer">Appliquer</button>
     </div>
     <p class="statut" id="statut" aria-live="polite"></p>
   </main>
@@ -72,7 +57,7 @@
     <label class="bascule">
       <span class="bascule-texte">
         <span>Demander un numéro de projet</span>
-        <small>Sinon, un lien « Ajouter un projet » reste disponible au besoin.</small>
+        <small>Ouvre la fenêtre du projet après le choix du niveau. Sinon, le lien « Ajouter un projet » reste disponible au besoin.</small>
       </span>
       <input type="checkbox" id="paramProjet">
     </label>
@@ -87,7 +72,7 @@
     <p class="statut" id="statutParametres" aria-live="polite"></p>
   </section>
 
-  <script src="tag.js?v=3"></script>
-  <script src="taskpane.js?v=3"></script>
+  <script src="tag.js?v=4"></script>
+  <script src="taskpane.js?v=4"></script>
 </body>
 </html>

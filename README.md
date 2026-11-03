@@ -16,7 +16,9 @@ Le complément fonctionne dans l'Outlook classique et le nouvel Outlook pour Win
 
 ## Fonctionnement
 
-À la création d'un courriel (nouveau, réponse, transfert), une bannière apparaît en haut du message avec le bouton « Choisir la priorité ». Il ouvre le panneau latéral, aussi accessible par le bouton « Priorité » du ruban. Dans le panneau, on choisit le niveau, puis au besoin Multi ou Résidentiel et le numéro de projet. « Appliquer » écrit la balise dans l'objet ; si une balise existe déjà, elle est remplacée à sa place. « Retirer » l'enlève.
+À la création d'un courriel (nouveau, réponse, transfert), une bannière apparaît en haut du message avec le bouton « Choisir la priorité ». Il ouvre le panneau latéral, aussi accessible par le bouton « Priorité » du ruban (sous « Applications » dans Outlook sur le Web et le nouvel Outlook). Un clic sur un niveau écrit la balise dans l'objet ; si une balise existe déjà, elle est remplacée à sa place. « Retirer » l'enlève.
+
+Quand « Demander un numéro de projet » est activé, une fenêtre « Numéro de projet » s'ouvre après le choix du niveau : Multi ou Résidentiel (le type par défaut est présélectionné) et le numéro. « Appliquer » écrit la balise avec le projet ; « Passer » ou Échap écrit le niveau seul ; fermer la fenêtre par le X ne modifie rien. Le lien « Ajouter un projet » ouvre la même fenêtre au besoin.
 
 Si un courriel part sans balise, Outlook affiche un rappel au moment de l'envoi : on peut choisir une priorité ou envoyer quand même. L'envoi n'est jamais bloqué.
 
@@ -26,7 +28,7 @@ Si un courriel part sans balise, Outlook affiche un rappel au moment de l'envoi 
 manifest.template.xml   Gabarit du manifeste (jeton {{BASE_URL}})
 manifest.xml            Manifeste généré pour GitHub Pages
 config.json             Adresse d'hébergement (production et développement)
-src/                    Panneau, gestionnaires d'événements, logique de balise
+src/                    Panneau, fenêtre du projet, gestionnaires d'événements, logique de balise
 assets/                 Icônes
 scripts/                Scripts PowerShell (manifeste, catégories, règles, mise en forme)
 tests/tag.test.js       Tests de la logique de balise (node tests/tag.test.js)
@@ -92,10 +94,10 @@ L'engrenage du panneau ouvre les paramètres. Ils sont enregistrés dans la boî
 | Paramètre | Défaut | Effet |
 |---|---|---|
 | Bannière et rappel à l'envoi | Activé | Désactivé : ni bannière ni rappel ; le bouton du ruban reste disponible. |
-| Demander un numéro de projet | Désactivé | Désactivé : la section Projet est masquée, un lien « Ajouter un projet » l'affiche pour un courriel. |
-| Type de projet par défaut | Aucun | Multi ou Résidentiel est présélectionné, et reste modifiable. |
+| Demander un numéro de projet | Désactivé | Activé : la fenêtre « Numéro de projet » s'ouvre après chaque choix de niveau. Désactivé : le niveau s'applique en un clic ; le lien « Ajouter un projet » ouvre la fenêtre au besoin. |
+| Type de projet par défaut | Aucun | Multi ou Résidentiel est présélectionné dans la fenêtre, et reste modifiable. |
 
-Un courriel qui a déjà un numéro de projet affiche toujours la section Projet, peu importe le paramètre.
+Si la balise du courriel contient déjà un projet (par exemple dans une réponse), la fenêtre s'ouvre toujours, préremplie avec le type et le numéro existants.
 
 ## Retirer le complément (employé)
 

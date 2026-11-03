@@ -1,10 +1,18 @@
 /*
  * taskpane.js — Panneau latéral du complément « Priorité Bonneville ».
  *
- * Paramètres de l'utilisateur (roamingSettings, suivent l'utilisateur
- * d'un poste à l'autre) :
+ * Fonctionnement :
+ *  - Un clic sur un niveau applique la balise.
+ *  - Si « Demander un numéro de projet » est activé (ou si la balise
+ *    actuelle contient déjà un projet), la fenêtre « Numéro de projet »
+ *    (dialog.html) s'ouvre d'abord : Appliquer = niveau + projet,
+ *    Passer = niveau seul, fermeture par le X = rien n'est modifié.
+ *  - Le lien « Ajouter un projet » ouvre la même fenêtre pour le niveau
+ *    choisi.
+ *
+ * Paramètres de l'utilisateur (roamingSettings) :
  *   banniereActive  (booléen, défaut true)   bannière + rappel à l'envoi
- *   demanderProjet  (booléen, défaut false)  afficher la section Projet
+ *   demanderProjet  (booléen, défaut false)  ouvrir la fenêtre du projet
  *   typeDefaut      ("", "M" ou "R", défaut "") type présélectionné
  */
 
@@ -15,8 +23,10 @@
   var ID_NOTIFICATION = "prioriteBonneville";
   var ID_BOUTON = "msgComposeOpenPaneButton";
   var DEFAUTS = { banniereActive: true, demanderProjet: false, typeDefaut: "" };
+  var VERSION_FICHIERS = "4";
 
-  var etat = { niveau: null, type: null, projetVisible: false };
+  var etat = { niveau: null, type: null, numero: null };
+  var dialogue = null;
   var $ = function (id) { return document.getElementById(id); };
 
   // ---------- Paramètres ----------
@@ -43,17 +53,6 @@
     });
   }
 
-  function majTypes() {
-    document.querySelectorAll(".type").forEach(function (b) {
-      b.setAttribute("aria-checked", String(b.dataset.type === etat.type));
-    });
-  }
-
-  function majProjet() {
-    $("sectionProjet").hidden = !etat.projetVisible;
-    $("lienAjouterProjet").hidden = etat.projetVisible;
-  }
-
   function majApercu(objet) {
     var balise = PrioriteTag.lire(objet);
     var p = $("apercu");
@@ -70,7 +69,6 @@
 
   function effacerMessages() {
     $("erreurNiveau").textContent = "";
-    $("erreurProjet").textContent = "";
     $("statut").textContent = "";
   }
 
@@ -124,33 +122,91 @@
     });
   }
 
-  // ---------- Actions ----------
-
-  function appliquer() {
-    effacerMessages();
-    if (!etat.niveau) {
-      $("erreurNiveau").textContent = "Choisissez un niveau de priorité.";
+  /** Écrit la balise dans l'objet et met l'affichage à jour. */
+  function appliquerBalise(niveau, type, numero) {
+    var balise;
+    try {
+      balise = PrioriteTag.construire(niveau, numero ? type : null, numero || null);
+    } catch (e) {
+      $("statut").textContent = e.message;
       return;
     }
-    var numero = etat.projetVisible ? $("numeroProjet").value.trim() : "";
-    if (numero && !/^\d+$/.test(numero)) {
-      $("erreurProjet").textContent = "Le numéro de projet contient des chiffres seulement.";
-      return;
-    }
-    if (numero && !etat.type) {
-      $("erreurProjet").textContent = "Choisissez Multi ou Résidentiel.";
-      return;
-    }
-
-    var balise = PrioriteTag.construire(etat.niveau, numero ? etat.type : null, numero || null);
     lireObjet(function (objet) {
       var nouvel = PrioriteTag.appliquer(objet, balise);
       ecrireObjet(nouvel, function () {
+        etat.niveau = niveau;
+        etat.type = numero ? type : etat.type;
+        etat.numero = numero || null;
+        majNiveaux();
         majApercu(nouvel);
         majBanniere(balise);
-        $("statut").textContent = "Balise appliquée";
+        $("statut").textContent = "Balise appliquée : " + balise;
       });
     });
+  }
+
+  // ---------- Fenêtre « Numéro de projet » ----------
+
+  function ouvrirDialogue(niveau) {
+    if (dialogue) { try { dialogue.close(); } catch (e) { /* déjà fermée */ } dialogue = null; }
+
+    var type = etat.type || lireParametre("typeDefaut") || "";
+    var adresse = new URL("dialog.html", window.location.href);
+    adresse.search = new URLSearchParams({
+      v: VERSION_FICHIERS,
+      niveau: niveau,
+      type: type,
+      numero: etat.numero || ""
+    }).toString();
+
+    Office.context.ui.displayDialogAsync(adresse.toString(),
+      { height: 42, width: 28, displayInIframe: true },
+      function (r) {
+        if (r.status !== Office.AsyncResultStatus.Succeeded) {
+          // Repli : appliquer le niveau seul et le signaler.
+          $("statut").textContent = "La fenêtre du projet n'a pas pu s'ouvrir ; niveau appliqué sans projet.";
+          appliquerBalise(niveau, null, null);
+          return;
+        }
+        dialogue = r.value;
+
+        dialogue.addEventHandler(Office.EventType.DialogMessageReceived, function (arg) {
+          var msg = {};
+          try { msg = JSON.parse(arg.message); } catch (e) { /* message invalide */ }
+          dialogue.close();
+          dialogue = null;
+          if (msg.action === "appliquer") {
+            appliquerBalise(niveau, msg.type, msg.numero);
+          } else if (msg.action === "passer") {
+            appliquerBalise(niveau, null, null);
+          }
+        });
+
+        // Fermeture par le X (ou erreur) : rien n'est modifié.
+        dialogue.addEventHandler(Office.EventType.DialogEventReceived, function () {
+          dialogue = null;
+          majNiveaux();
+        });
+      });
+  }
+
+  function choisirNiveau(niveau) {
+    effacerMessages();
+    var demander = lireParametre("demanderProjet") === true || !!etat.numero;
+    if (demander) {
+      ouvrirDialogue(niveau);
+    } else {
+      appliquerBalise(niveau, null, null);
+    }
+  }
+
+  function ajouterProjet() {
+    effacerMessages();
+    if (!etat.niveau) {
+      $("erreurNiveau").textContent = "Choisissez d'abord un niveau de priorité.";
+      return;
+    }
+    ouvrirDialogue(etat.niveau);
   }
 
   function retirer() {
@@ -163,10 +219,10 @@
       var nouvel = PrioriteTag.retirer(objet);
       ecrireObjet(nouvel, function () {
         etat.niveau = null;
-        $("numeroProjet").value = "";
-        etat.type = lireParametre("typeDefaut") || null;
-        etat.projetVisible = lireParametre("demanderProjet") === true;
-        majNiveaux(); majTypes(); majProjet(); majApercu(nouvel);
+        etat.numero = null;
+        etat.type = null;
+        majNiveaux();
+        majApercu(nouvel);
         majBanniere(null);
         $("statut").textContent = "Balise retirée";
       });
@@ -190,51 +246,16 @@
   function fermerParametres() {
     $("vueParametres").hidden = true;
     $("vuePrincipale").hidden = false;
-    // Appliquer les nouveaux réglages à la vue, sans masquer un projet déjà saisi.
-    if (!$("numeroProjet").value) {
-      etat.projetVisible = lireParametre("demanderProjet") === true;
-      etat.type = lireParametre("typeDefaut") || etat.type;
-      majTypes(); majProjet();
-    }
   }
 
   // ---------- Initialisation ----------
 
   function brancher() {
     document.querySelectorAll(".niveau").forEach(function (b) {
-      b.addEventListener("click", function () {
-        etat.niveau = b.dataset.niveau;
-        $("erreurNiveau").textContent = "";
-        $("statut").textContent = "";
-        majNiveaux();
-      });
+      b.addEventListener("click", function () { choisirNiveau(b.dataset.niveau); });
     });
 
-    document.querySelectorAll(".type").forEach(function (b) {
-      b.addEventListener("click", function () {
-        etat.type = etat.type === b.dataset.type ? null : b.dataset.type;
-        $("erreurProjet").textContent = "";
-        majTypes();
-      });
-    });
-
-    $("numeroProjet").addEventListener("input", function (e) {
-      var propre = e.target.value.replace(/\D/g, "");
-      if (propre !== e.target.value) e.target.value = propre;
-      $("erreurProjet").textContent = "";
-    });
-    $("numeroProjet").addEventListener("keydown", function (e) {
-      if (e.key === "Enter") appliquer();
-    });
-
-    $("lienAjouterProjet").addEventListener("click", function () {
-      etat.projetVisible = true;
-      if (!etat.type) etat.type = lireParametre("typeDefaut") || null;
-      majTypes(); majProjet();
-      $("numeroProjet").focus();
-    });
-
-    $("btnAppliquer").addEventListener("click", appliquer);
+    $("lienAjouterProjet").addEventListener("click", ajouterProjet);
     $("btnRetirer").addEventListener("click", retirer);
     $("btnParametres").addEventListener("click", ouvrirParametres);
     $("btnRetour").addEventListener("click", fermerParametres);
@@ -257,21 +278,15 @@
 
   function initialiser() {
     brancher();
-    etat.type = lireParametre("typeDefaut") || null;
-    etat.projetVisible = lireParametre("demanderProjet") === true;
-
     lireObjet(function (objet) {
       var balise = PrioriteTag.lire(objet);
       if (balise) {
         etat.niveau = balise.niveau;
-        if (balise.numero) {
-          // Un projet existant est toujours affiché, peu importe le paramètre.
-          etat.projetVisible = true;
-          etat.type = balise.type;
-          $("numeroProjet").value = balise.numero;
-        }
+        etat.type = balise.type;
+        etat.numero = balise.numero;
       }
-      majNiveaux(); majTypes(); majProjet(); majApercu(objet);
+      majNiveaux();
+      majApercu(objet);
     });
   }
 

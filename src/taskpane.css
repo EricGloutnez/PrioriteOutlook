@@ -184,3 +184,21 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .niveau { transition: none; }
 }
+
+/* Actions du panneau : lien à gauche, Retirer à droite */
+.actions-panneau { justify-content: space-between; align-items: center; }
+.actions-panneau .lien { margin: 0; }
+
+/* Fenêtre « Numéro de projet » */
+body.dialogue { padding: 20px 20px 16px; }
+.entete-dialogue { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.entete-dialogue h1 { font-size: 17px; font-weight: 600; margin: 0; }
+.pastille {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-weight: 600; font-size: 13px; color: #ffffff;
+}
+body.dialogue .types { margin-bottom: 12px; }
+.apercu-dialogue {
+  margin: 10px 0 0; min-height: 19px; font-size: 13px; color: var(--texte-2);
+  font-family: Consolas, "Cascadia Mono", monospace;
+}
