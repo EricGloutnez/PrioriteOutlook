@@ -11,13 +11,13 @@
            xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
            xsi:type="MailApp">
   <Id>ea420deb-9358-414f-8a4d-a5c0262f0ea1</Id>
-  <Version>1.0.0.0</Version>
+  <Version>1.0.1.0</Version>
   <ProviderName>Bonneville</ProviderName>
   <DefaultLocale>fr-CA</DefaultLocale>
   <DisplayName DefaultValue="Priorité Bonneville"/>
   <Description DefaultValue="Ajoute un niveau de priorité (Urgent, P1, P2, P3, Confidentiel) et, au besoin, un numéro de projet dans l'objet des courriels."/>
-  <IconUrl DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-64.png"/>
-  <HighResolutionIconUrl DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-128.png"/>
+  <IconUrl DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-64.png?v=2"/>
+  <HighResolutionIconUrl DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-128.png?v=2"/>
   <SupportUrl DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/"/>
   <AppDomains>
     <AppDomain>https://ericgloutnez.github.io/PrioriteOutlook</AppDomain>
@@ -100,9 +100,9 @@
       </Hosts>
       <Resources>
         <bt:Images>
-          <bt:Image id="Icon.16" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-16.png"/>
-          <bt:Image id="Icon.32" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-32.png"/>
-          <bt:Image id="Icon.80" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-80.png"/>
+          <bt:Image id="Icon.16" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-16.png?v=2"/>
+          <bt:Image id="Icon.32" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-32.png?v=2"/>
+          <bt:Image id="Icon.80" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-80.png?v=2"/>
         </bt:Images>
         <bt:Urls>
           <bt:Url id="Commands.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/commands.html"/>
