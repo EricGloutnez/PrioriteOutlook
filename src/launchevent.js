@@ -8,6 +8,11 @@
  *    aucune balise, propose de choisir une priorité ou d'envoyer
  *    quand même. L'envoi n'est jamais bloqué.
  *
+ * Règle de sécurité : chaque gestionnaire appelle event.completed()
+ * dans TOUS les cas, y compris en cas d'erreur (try/catch) et après un
+ * délai maximal. Sans cela, Outlook affiche « … prend plus de temps que
+ * prévu » au moment de l'envoi.
+ *
  * Les deux événements respectent le paramètre « Bannière et rappel à
  * l'envoi » de l'utilisateur (roamingSettings, clé banniereActive).
  *
@@ -21,6 +26,28 @@
 var PRIORITE_ID_NOTIFICATION = "prioriteBonneville";
 var PRIORITE_ID_BOUTON = "msgComposeOpenPaneButton";
 var PRIORITE_REGEX = /\[(?:(CONFIDENTIEL)(?:_([MR])_(\d+))?|(?:([MR])_(\d+)_)?(URGENT|P1|P2|P3))\]/i;
+var PRIORITE_DELAI_MAX_MS = 4000;
+
+/**
+ * Enveloppe event.completed pour qu'il ne soit appelé qu'une seule fois,
+ * et automatiquement après PRIORITE_DELAI_MAX_MS si rien ne l'a fait.
+ */
+function prioriteTerminaison(event, optionsParDefaut) {
+  var fait = false;
+  function terminer(options) {
+    if (fait) return;
+    fait = true;
+    clearTimeout(minuterie);
+    try {
+      if (options) { event.completed(options); } else { event.completed(); }
+    } catch (e) {
+      // Dernier recours : terminer sans options.
+      try { event.completed(); } catch (e2) { /* rien d'autre à faire */ }
+    }
+  }
+  var minuterie = setTimeout(function () { terminer(optionsParDefaut); }, PRIORITE_DELAI_MAX_MS);
+  return terminer;
+}
 
 /** Lit un paramètre de l'utilisateur, avec une valeur par défaut. */
 function prioriteParametre(nom, defaut) {
@@ -56,68 +83,84 @@ function prioriteAfficherBanniere(texteBalise, terminer) {
     }]
   };
 
-  item.notificationMessages.replaceAsync(PRIORITE_ID_NOTIFICATION, avecAction, function (r) {
-    if (r.status === Office.AsyncResultStatus.Succeeded) {
-      terminer();
-      return;
-    }
-    // Repli : message d'information sans bouton (le ruban reste disponible).
-    var simple = {
-      type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
-      message: message + " (bouton Priorité du ruban)",
-      icon: "Icon.16",
-      persistent: true
-    };
-    item.notificationMessages.replaceAsync(PRIORITE_ID_NOTIFICATION, simple, function () {
-      terminer();
+  try {
+    item.notificationMessages.replaceAsync(PRIORITE_ID_NOTIFICATION, avecAction, function (r) {
+      if (r.status === Office.AsyncResultStatus.Succeeded) {
+        terminer();
+        return;
+      }
+      // Repli : message d'information sans bouton (le ruban reste disponible).
+      try {
+        item.notificationMessages.replaceAsync(PRIORITE_ID_NOTIFICATION, {
+          type: Office.MailboxEnums.ItemNotificationMessageType.InformationalMessage,
+          message: message + " (bouton Priorité du ruban)",
+          icon: "Icon.16",
+          persistent: true
+        }, function () { terminer(); });
+      } catch (e) {
+        terminer();
+      }
     });
-  });
+  } catch (e) {
+    terminer();
+  }
 }
 
 /** Événement : création d'un nouveau message, d'une réponse ou d'un transfert. */
 function onNewMessageComposeHandler(event) {
-  if (!prioriteBanniereActive()) {
-    event.completed();
-    return;
-  }
-  Office.context.mailbox.item.subject.getAsync(function (r) {
-    var objet = r.status === Office.AsyncResultStatus.Succeeded ? r.value : "";
-    var m = PRIORITE_REGEX.exec(objet || "");
-    prioriteAfficherBanniere(m ? m[0].toUpperCase() : null, function () {
-      event.completed();
+  var terminer = prioriteTerminaison(event, null);
+  try {
+    if (!prioriteBanniereActive()) {
+      terminer();
+      return;
+    }
+    Office.context.mailbox.item.subject.getAsync(function (r) {
+      try {
+        var objet = r.status === Office.AsyncResultStatus.Succeeded ? r.value : "";
+        var m = PRIORITE_REGEX.exec(objet || "");
+        prioriteAfficherBanniere(m ? m[0].toUpperCase() : null, terminer);
+      } catch (e) {
+        terminer();
+      }
     });
-  });
+  } catch (e) {
+    terminer();
+  }
 }
 
 /** Événement : envoi du message (Smart Alerts). */
 function onMessageSendHandler(event) {
-  if (!prioriteBanniereActive()) {
-    event.completed({ allowEvent: true });
-    return;
+  // En cas de doute (erreur, délai dépassé), l'envoi est toujours permis.
+  var terminer = prioriteTerminaison(event, { allowEvent: true });
+  try {
+    if (!prioriteBanniereActive()) {
+      terminer({ allowEvent: true });
+      return;
+    }
+    Office.context.mailbox.item.subject.getAsync(function (r) {
+      try {
+        if (r.status !== Office.AsyncResultStatus.Succeeded || PRIORITE_REGEX.test(r.value || "")) {
+          terminer({ allowEvent: true });
+          return;
+        }
+        var options = {
+          allowEvent: false,
+          errorMessage: "Aucune priorité choisie pour ce courriel. Vous pouvez en choisir une ou envoyer quand même."
+        };
+        // Bouton « Choisir la priorité » qui ouvre le panneau (Mailbox 1.14).
+        // Le mode PromptUser est déjà fixé dans le manifeste : pas de sendModeOverride.
+        if (Office.context.requirements.isSetSupported("Mailbox", "1.14")) {
+          options.cancelLabel = "Choisir la priorité";
+          options.commandId = PRIORITE_ID_BOUTON;
+        }
+        terminer(options);
+      } catch (e) {
+        terminer({ allowEvent: true });
+      }
+    });
+  } catch (e) {
+    terminer({ allowEvent: true });
   }
-  Office.context.mailbox.item.subject.getAsync(function (r) {
-    // En cas d'erreur de lecture, ne jamais retenir l'envoi.
-    if (r.status !== Office.AsyncResultStatus.Succeeded) {
-      event.completed({ allowEvent: true });
-      return;
-    }
-    if (PRIORITE_REGEX.test(r.value || "")) {
-      event.completed({ allowEvent: true });
-      return;
-    }
-
-    var options = {
-      allowEvent: false,
-      errorMessage: "Aucune priorité choisie pour ce courriel. Vous pouvez en choisir une ou envoyer quand même."
-    };
-    // Bouton « Choisir la priorité » qui ouvre le panneau (Mailbox 1.14).
-    if (Office.context.requirements.isSetSupported("Mailbox", "1.14")) {
-      options.cancelLabel = "Choisir la priorité";
-      options.commandId = PRIORITE_ID_BOUTON;
-      options.sendModeOverride = Office.MailboxEnums.SendModeOverride.PromptUser;
-    }
-    event.completed(options);
-  });
 }
 
 // Association des gestionnaires aux noms déclarés dans le manifeste.
