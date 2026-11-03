@@ -164,7 +164,19 @@ function onMessageSendHandler(event) {
 }
 
 // Association des gestionnaires aux noms déclarés dans le manifeste.
-if (typeof Office !== "undefined" && Office.actions) {
+// Dans Outlook sur le Web et le nouvel Outlook, Office.actions peut ne
+// pas encore exister au chargement de ce fichier : on réessaie alors
+// dans Office.onReady. Sans association, Outlook attend une réponse qui
+// ne vient jamais (« … prend plus de temps que prévu »).
+var prioriteAssocie = false;
+function prioriteAssocier() {
+  if (prioriteAssocie) return;
+  if (typeof Office === "undefined" || !Office.actions || !Office.actions.associate) return;
   Office.actions.associate("onNewMessageComposeHandler", onNewMessageComposeHandler);
   Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
+  prioriteAssocie = true;
+}
+prioriteAssocier();
+if (!prioriteAssocie && typeof Office !== "undefined" && typeof Office.onReady === "function") {
+  Office.onReady(prioriteAssocier);
 }

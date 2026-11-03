@@ -11,7 +11,7 @@
            xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
            xsi:type="MailApp">
   <Id>ea420deb-9358-414f-8a4d-a5c0262f0ea1</Id>
-  <Version>1.0.1.0</Version>
+  <Version>1.0.2.0</Version>
   <ProviderName>Bonneville</ProviderName>
   <DefaultLocale>fr-CA</DefaultLocale>
   <DisplayName DefaultValue="Priorité Bonneville"/>
@@ -105,10 +105,10 @@
           <bt:Image id="Icon.80" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-80.png?v=2"/>
         </bt:Images>
         <bt:Urls>
-          <bt:Url id="Commands.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/commands.html"/>
-          <bt:Url id="Taskpane.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/taskpane.html"/>
-          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/commands.html"/>
-          <bt:Url id="JSRuntime.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/launchevent.js"/>
+          <bt:Url id="Commands.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/commands.html?v=6"/>
+          <bt:Url id="Taskpane.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/taskpane.html?v=6"/>
+          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/commands.html?v=6"/>
+          <bt:Url id="JSRuntime.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/launchevent.js?v=6"/>
         </bt:Urls>
         <bt:ShortStrings>
           <bt:String id="Groupe.Label" DefaultValue="Priorité"/>
