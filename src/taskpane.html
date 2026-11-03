@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr-CA">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Priorité Bonneville</title>
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+  <link rel="stylesheet" href="taskpane.css">
+</head>
+<body>
+  <main id="vuePrincipale">
+    <header class="entete">
+      <h1>Priorité du courriel</h1>
+      <button type="button" class="bouton-icone" id="btnParametres" aria-label="Paramètres" title="Paramètres">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm7.43-2.53.04-.97-.04-.97 2.11-1.65a.5.5 0 0 0 .12-.64l-2-3.46a.5.5 0 0 0-.61-.22l-2.49 1a7.3 7.3 0 0 0-1.69-.98l-.38-2.65A.49.49 0 0 0 14 2h-4a.49.49 0 0 0-.49.42l-.38 2.65c-.61.25-1.17.58-1.69.98l-2.49-1a.5.5 0 0 0-.61.22l-2 3.46a.49.49 0 0 0 .12.64l2.11 1.65-.04.97.04.97-2.11 1.65a.5.5 0 0 0-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.04.24.25.42.49.42h4c.24 0 .45-.18.49-.42l.38-2.65c.61-.25 1.17-.58 1.69-.98l2.49 1c.22.08.49 0 .61-.22l2-3.46a.5.5 0 0 0-.12-.64l-2.11-1.65Z"/></svg>
+      </button>
+    </header>
+
+    <p class="apercu" id="apercu" aria-live="polite">Aucune priorité choisie</p>
+
+    <section aria-labelledby="titreNiveaux">
+      <h2 id="titreNiveaux" class="visuellement-cache">Niveau de priorité</h2>
+      <div class="niveaux" role="radiogroup" aria-labelledby="titreNiveaux">
+        <button type="button" class="niveau niveau-urgent" role="radio" aria-checked="false" data-niveau="URGENT">Urgent</button>
+        <button type="button" class="niveau niveau-p1" role="radio" aria-checked="false" data-niveau="P1">P1</button>
+        <button type="button" class="niveau niveau-p2" role="radio" aria-checked="false" data-niveau="P2">P2</button>
+        <button type="button" class="niveau niveau-p3" role="radio" aria-checked="false" data-niveau="P3">P3</button>
+        <button type="button" class="niveau niveau-confidentiel" role="radio" aria-checked="false" data-niveau="CONFIDENTIEL">Confidentiel</button>
+      </div>
+      <p class="erreur" id="erreurNiveau" role="alert"></p>
+    </section>
+
+    <button type="button" class="lien" id="lienAjouterProjet" hidden>Ajouter un projet</button>
+
+    <section class="projet" id="sectionProjet" aria-labelledby="titreProjet" hidden>
+      <h2 id="titreProjet">Projet <span class="facultatif">facultatif</span></h2>
+      <div class="types" role="radiogroup" aria-labelledby="titreProjet">
+        <button type="button" class="type" role="radio" aria-checked="false" data-type="M">Multi</button>
+        <button type="button" class="type" role="radio" aria-checked="false" data-type="R">Résidentiel</button>
+      </div>
+      <label class="champ" for="numeroProjet">
+        <span>Numéro de projet</span>
+        <input id="numeroProjet" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="12345">
+      </label>
+      <p class="erreur" id="erreurProjet" role="alert"></p>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="bouton" id="btnRetirer">Retirer</button>
+      <button type="button" class="bouton bouton-principal" id="btnAppliquer">Appliquer</button>
+    </div>
+    <p class="statut" id="statut" aria-live="polite"></p>
+  </main>
+
+  <section id="vueParametres" hidden aria-labelledby="titreParametres">
+    <header class="entete">
+      <button type="button" class="bouton-icone" id="btnRetour" aria-label="Retour" title="Retour">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.4 5.4 14 4l-8 8 8 8 1.4-1.4L8.8 12z"/></svg>
+      </button>
+      <h1 id="titreParametres">Paramètres</h1>
+    </header>
+
+    <label class="bascule">
+      <span class="bascule-texte">
+        <span>Bannière et rappel à l'envoi</span>
+        <small>Affiche la bannière à la création d'un courriel et un rappel si vous envoyez sans priorité.</small>
+      </span>
+      <input type="checkbox" id="paramBanniere">
+    </label>
+
+    <label class="bascule">
+      <span class="bascule-texte">
+        <span>Demander un numéro de projet</span>
+        <small>Sinon, un lien « Ajouter un projet » reste disponible au besoin.</small>
+      </span>
+      <input type="checkbox" id="paramProjet">
+    </label>
+
+    <fieldset class="choix-defaut">
+      <legend>Type de projet par défaut</legend>
+      <label><input type="radio" name="typeDefaut" value=""> Aucun</label>
+      <label><input type="radio" name="typeDefaut" value="M"> Multi</label>
+      <label><input type="radio" name="typeDefaut" value="R"> Résidentiel</label>
+    </fieldset>
+
+    <p class="statut" id="statutParametres" aria-live="polite"></p>
+  </section>
+
+  <script src="tag.js"></script>
+  <script src="taskpane.js"></script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Gabarit du manifeste du complément « Priorité Bonneville ».
+  Ne pas modifier manifest.xml à la main : modifier ce gabarit ou
+  config.json, puis exécuter scripts\Generer-Manifeste.ps1.
+  Jeton remplacé par le script : https://ericgloutnez.github.io/PrioriteOutlook (sans barre oblique finale)
+-->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+           xmlns:mailappor="http://schemas.microsoft.com/office/mailappversionoverrides/1.0"
+           xsi:type="MailApp">
+  <Id>ea420deb-9358-414f-8a4d-a5c0262f0ea1</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Bonneville</ProviderName>
+  <DefaultLocale>fr-CA</DefaultLocale>
+  <DisplayName DefaultValue="Priorité Bonneville"/>
+  <Description DefaultValue="Ajoute un niveau de priorité (Urgent, P1, P2, P3, Confidentiel) et, au besoin, un numéro de projet dans l'objet des courriels."/>
+  <IconUrl DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-64.png"/>
+  <HighResolutionIconUrl DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-128.png"/>
+  <SupportUrl DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/"/>
+  <AppDomains>
+    <AppDomain>https://ericgloutnez.github.io/PrioriteOutlook</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Mailbox"/>
+  </Hosts>
+  <Requirements>
+    <Sets>
+      <Set Name="Mailbox" MinVersion="1.1"/>
+    </Sets>
+  </Requirements>
+  <FormSettings>
+    <Form xsi:type="ItemEdit">
+      <DesktopSettings>
+        <SourceLocation DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/taskpane.html"/>
+      </DesktopSettings>
+    </Form>
+  </FormSettings>
+  <Permissions>ReadWriteItem</Permissions>
+  <Rule xsi:type="RuleCollection" Mode="Or">
+    <Rule xsi:type="ItemIs" ItemType="Message" FormType="Edit"/>
+  </Rule>
+  <DisableEntityHighlighting>false</DisableEntityHighlighting>
+
+  <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides" xsi:type="VersionOverridesV1_0">
+    <VersionOverrides xmlns="http://schemas.microsoft.com/office/mailappversionoverrides/1.1" xsi:type="VersionOverridesV1_1">
+      <Requirements>
+        <bt:Sets DefaultMinVersion="1.12">
+          <bt:Set Name="Mailbox"/>
+        </bt:Sets>
+      </Requirements>
+      <Hosts>
+        <Host xsi:type="MailHost">
+          <!-- Environnement d'exécution des événements :
+               page HTML pour le Web et le nouvel Outlook,
+               fichier JavaScript seul pour l'Outlook classique. -->
+          <Runtimes>
+            <Runtime resid="WebViewRuntime.Url">
+              <Override type="javascript" resid="JSRuntime.Url"/>
+            </Runtime>
+          </Runtimes>
+          <DesktopFormFactor>
+            <FunctionFile resid="Commands.Url"/>
+
+            <!-- Bouton « Priorité » dans le ruban de rédaction -->
+            <ExtensionPoint xsi:type="MessageComposeCommandSurface">
+              <OfficeTab id="TabDefault">
+                <Group id="grpPriorite">
+                  <Label resid="Groupe.Label"/>
+                  <Control xsi:type="Button" id="msgComposeOpenPaneButton">
+                    <Label resid="Bouton.Label"/>
+                    <Supertip>
+                      <Title resid="Bouton.Label"/>
+                      <Description resid="Bouton.Tooltip"/>
+                    </Supertip>
+                    <Icon>
+                      <bt:Image size="16" resid="Icon.16"/>
+                      <bt:Image size="32" resid="Icon.32"/>
+                      <bt:Image size="80" resid="Icon.80"/>
+                    </Icon>
+                    <Action xsi:type="ShowTaskpane">
+                      <SourceLocation resid="Taskpane.Url"/>
+                    </Action>
+                  </Control>
+                </Group>
+              </OfficeTab>
+            </ExtensionPoint>
+
+            <!-- Bannière à la création et rappel à l'envoi -->
+            <ExtensionPoint xsi:type="LaunchEvent">
+              <LaunchEvents>
+                <LaunchEvent Type="OnNewMessageCompose" FunctionName="onNewMessageComposeHandler"/>
+                <LaunchEvent Type="OnMessageSend" FunctionName="onMessageSendHandler" SendMode="PromptUser"/>
+              </LaunchEvents>
+              <SourceLocation resid="WebViewRuntime.Url"/>
+            </ExtensionPoint>
+          </DesktopFormFactor>
+        </Host>
+      </Hosts>
+      <Resources>
+        <bt:Images>
+          <bt:Image id="Icon.16" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-16.png"/>
+          <bt:Image id="Icon.32" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-32.png"/>
+          <bt:Image id="Icon.80" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/assets/icon-80.png"/>
+        </bt:Images>
+        <bt:Urls>
+          <bt:Url id="Commands.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/commands.html"/>
+          <bt:Url id="Taskpane.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/taskpane.html"/>
+          <bt:Url id="WebViewRuntime.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/commands.html"/>
+          <bt:Url id="JSRuntime.Url" DefaultValue="https://ericgloutnez.github.io/PrioriteOutlook/src/launchevent.js"/>
+        </bt:Urls>
+        <bt:ShortStrings>
+          <bt:String id="Groupe.Label" DefaultValue="Priorité"/>
+          <bt:String id="Bouton.Label" DefaultValue="Priorité"/>
+        </bt:ShortStrings>
+        <bt:LongStrings>
+          <bt:String id="Bouton.Tooltip" DefaultValue="Choisir le niveau de priorité et le numéro de projet de ce courriel."/>
+        </bt:LongStrings>
+      </Resources>
+    </VersionOverrides>
+  </VersionOverrides>
+</OfficeApp>
