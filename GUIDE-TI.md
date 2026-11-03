@@ -4,7 +4,7 @@ Ce guide s'adresse à un administrateur Microsoft 365 qui ne connaît pas le pro
 
 ## 1. Résumé
 
-« Priorité Bonneville » est un complément Web pour Outlook. Pendant la rédaction, l'expéditeur choisit un niveau (Urgent, P1, P2, P3, Confidentiel) et, au besoin, un numéro de projet. Le complément écrit une balise dans l'objet, par exemple `[P1-M-12345]`. Chez les destinataires de Bonneville, des règles de réception côté serveur appliquent une catégorie de couleur selon la balise.
+« Priorité Bonneville » est un complément Web pour Outlook. Pendant la rédaction, l'expéditeur choisit un niveau (Urgent, P1, P2, P3, Confidentiel) et, au besoin, un numéro de projet. Le complément écrit une balise dans l'objet, par exemple `[M_12345_P1] Objet` ou `[CONFIDENTIEL_M_12345] Objet`. Chez les destinataires de Bonneville, des règles de réception côté serveur appliquent une catégorie de couleur selon la balise.
 
 Ce qu'il fait : il lit et modifie l'objet du courriel en cours de rédaction, affiche une bannière à la création et un rappel à l'envoi si aucune priorité n'est choisie (sans jamais bloquer l'envoi), et enregistre trois préférences par utilisateur dans sa boîte aux lettres.
 
@@ -83,7 +83,7 @@ Avertissement Exchange : créer ou modifier des règles de réception par PowerS
 
 - [ ] Le bouton « Priorité » apparaît dans le ruban d'un nouveau courriel (Outlook classique et nouvel Outlook).
 - [ ] La bannière apparaît à la création d'un courriel, d'une réponse et d'un transfert.
-- [ ] Le panneau applique `[P1]` et `[P1-M-12345]` dans l'objet, et remplace une balise existante sans la dupliquer.
+- [ ] Le panneau applique `[P1]`, `[M_12345_P1]` et `[CONFIDENTIEL_M_12345]` au début de l'objet (après RE: ou TR:), et remplace une balise existante sans la dupliquer.
 - [ ] Le rappel apparaît à l'envoi d'un courriel sans balise, et « envoyer quand même » fonctionne.
 - [ ] Chez un destinataire interne, chaque niveau reçoit la bonne catégorie et la bonne couleur, y compris avec un numéro de projet.
 - [ ] Un courriel sans balise, ou contenant « P1 » sans crochets, ne reçoit aucune catégorie.

@@ -97,9 +97,14 @@ if ($Activer) {
         $nom = "$PrefixeRegle$niveau"
         if ($PSCmdlet.ShouldProcess($nom, 'Ajouter la règle de mise en forme')) {
             $r = $regles.Add($nom)
-            # Filtre DASL : objet contenant « [NIVEAU » (couvre [P1] et [P1-M-12345]).
-            # À VALIDER À L'ESSAI : traitement du crochet dans LIKE.
-            $r.Filter     = "`"urn:schemas:httpmail:subject`" LIKE '%[$niveau%'"
+            # Filtre DASL : couvre [P1] et [M_12345_P1], ou [CONFIDENTIEL] et
+            # [CONFIDENTIEL_M_12345]. À VALIDER À L'ESSAI : crochets dans LIKE.
+            $sujet = '"urn:schemas:httpmail:subject"'
+            $r.Filter = if ($niveau -eq 'CONFIDENTIEL') {
+                "$sujet LIKE '%[CONFIDENTIEL%'"
+            } else {
+                "$sujet LIKE '%[$niveau]%' OR $sujet LIKE '%_$niveau]%'"
+            }
             $r.Font.Bold  = $true
             $r.Font.Color = $Formats[$niveau]
             $r.Enabled    = $true

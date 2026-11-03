@@ -5,15 +5,16 @@
 
 .DESCRIPTION
     Règles créées (nom → mots recherchés dans l'objet → catégorie) :
-      Priorité - URGENT        [URGENT]  [URGENT-        URGENT
-      Priorité - P1            [P1]      [P1-            P1
-      Priorité - P2            [P2]      [P2-            P2
-      Priorité - P3            [P3]      [P3-            P3
-      Priorité - CONFIDENTIEL  [CONFIDENTIEL] [CONFIDENTIEL-  CONFIDENTIEL
+      Priorité - URGENT        [URGENT]        _URGENT]        URGENT
+      Priorité - P1            [P1]            _P1]            P1
+      Priorité - P2            [P2]            _P2]            P2
+      Priorité - P3            [P3]            _P3]            P3
+      Priorité - CONFIDENTIEL  [CONFIDENTIEL]  [CONFIDENTIEL_  CONFIDENTIEL
 
-    Les deux formes couvrent [P1] et [P1-M-12345] / [P1-R-12345].
+    Les deux formes couvrent [P1] et [M_12345_P1] / [R_12345_P1], ainsi que
+    [CONFIDENTIEL] et [CONFIDENTIEL_M_12345].
     À VALIDER À L'ESSAI : la façon dont SubjectContainsWords traite les
-    crochets et le trait d'union (voir README, section « À valider »).
+    crochets et le trait de soulignement (voir README, « À valider »).
 
     - Idempotent : une règle existante du même nom est mise à jour.
     - -WhatIf affiche ce qui serait fait sans rien modifier.
@@ -86,7 +87,8 @@ foreach ($boite in $Boites) {
         $regles = @(Get-InboxRule -Mailbox $boite)
         foreach ($niveau in $Niveaux) {
             $nom = "$PrefixeRegle$niveau"
-            $mots = @("[$niveau]", "[$niveau-")
+            $mots = if ($niveau -eq 'CONFIDENTIEL') { @('[CONFIDENTIEL]', '[CONFIDENTIEL_') }
+                    else { @("[$niveau]", "_$niveau]") }
             $existante = $regles | Where-Object { $_.Name -eq $nom } | Select-Object -First 1
 
             if ($existante) {

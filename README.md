@@ -4,13 +4,13 @@ Complément Web pour Outlook qui ajoute un niveau de priorité, et au besoin un 
 
 | Niveau | Balise sans projet | Balise avec projet | Couleur |
 |---|---|---|---|
-| Urgent | `[URGENT]` | `[URGENT-M-12345]` | Rouge |
-| P1 | `[P1]` | `[P1-R-12345]` | Orange |
-| P2 | `[P2]` | `[P2-M-12345]` | Jaune |
-| P3 | `[P3]` | `[P3-R-12345]` | Vert |
-| Confidentiel | `[CONFIDENTIEL]` | `[CONFIDENTIEL-M-12345]` | Mauve |
+| Urgent | `[URGENT] Objet` | `[M_12345_URGENT] Objet` | Rouge |
+| P1 | `[P1] Objet` | `[R_12345_P1] Objet` | Orange |
+| P2 | `[P2] Objet` | `[M_12345_P2] Objet` | Jaune |
+| P3 | `[P3] Objet` | `[R_12345_P3] Objet` | Vert |
+| Confidentiel | `[CONFIDENTIEL] Objet` | `[CONFIDENTIEL_M_12345] Objet` | Mauve |
 
-M = Multi, R = Résidentiel. Le numéro de projet contient des chiffres seulement.
+M = Multi, R = Résidentiel. Le numéro de projet contient des chiffres seulement. La balise est placée au début de l'objet (après RE: ou TR: dans une réponse ou un transfert), suivie d'un espace ; l'employé écrit ensuite le reste de l'objet. Pour un courriel confidentiel, CONFIDENTIEL passe en avant de tout.
 
 Le complément fonctionne dans l'Outlook classique et le nouvel Outlook pour Windows, en rédaction. Sur Android et iPhone, la balise se tape à la main dans l'objet ; les règles de réception la reconnaissent de la même façon.
 
@@ -72,7 +72,7 @@ gh api -X POST repos/EricGloutnez/PrioriteOutlook/pages -f "source[branch]=main"
 
 Les couleurs viennent des catégories et des règles de réception. Pour l'essai, deux possibilités.
 
-Dans Outlook : créer les catégories URGENT, P1, P2, P3 et CONFIDENTIEL avec leur couleur, puis une règle par niveau, « si l'objet contient `[P1]` ou `[P1-`, classer dans la catégorie P1 ».
+Dans Outlook : créer les catégories URGENT, P1, P2, P3 et CONFIDENTIEL avec leur couleur, puis une règle par niveau, « si l'objet contient `[P1]` ou `_P1]`, classer dans la catégorie P1 » (pour Confidentiel : `[CONFIDENTIEL]` ou `[CONFIDENTIEL_`).
 
 Par PowerShell, sur votre propre boîte, si votre compte le permet :
 
@@ -123,7 +123,7 @@ Ces points n'ont pas pu être testés dans Outlook pendant le développement :
 2. **Événements en chargement manuel** : la bannière et le rappel à l'envoi peuvent ne s'activer qu'une fois le complément déployé par un administrateur.
 3. **Rappel à l'envoi** : bouton « Choisir la priorité » qui ouvre le panneau (exige Mailbox 1.14 ; sinon, rappel avec les boutons standards d'Outlook).
 4. **Lecture des paramètres dans les événements** (roamingSettings) dans l'Outlook classique.
-5. **Règles de réception** : reconnaissance de `[P1]` et `[P1-` par SubjectContainsWords, avec les crochets et le trait d'union. Vérifier aussi qu'un objet contenant `[P1` ne déclenche pas la règle P2, etc.
+5. **Règles de réception** : reconnaissance de `[P1]` et `_P1]` par SubjectContainsWords, avec les crochets et le trait de soulignement. Vérifier aussi qu'un objet comme « P1-Fall Cottage » (sans crochets) ne reçoit aucune catégorie.
 6. **Mise en forme conditionnelle** : traitement du crochet dans le filtre `LIKE '%[P1%'`.
 7. **Noms des cmdlets Graph** des catégories (module Microsoft.Graph.Users).
 

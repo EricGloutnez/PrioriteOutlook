@@ -2,7 +2,7 @@
  * launchevent.js — Activation par événement du complément « Priorité Bonneville ».
  *
  *  - OnNewMessageCompose : affiche une bannière en haut du courriel
- *    (« Aucune priorité choisie… » ou « Priorité : [P1-M-12345] »)
+ *    (« Aucune priorité choisie… » ou « Priorité : [M_12345_P1] »)
  *    avec une action qui ouvre le panneau latéral.
  *  - OnMessageSend (Smart Alerts, mode PromptUser) : si l'objet n'a
  *    aucune balise, propose de choisir une priorité ou d'envoyer
@@ -20,7 +20,7 @@
 
 var PRIORITE_ID_NOTIFICATION = "prioriteBonneville";
 var PRIORITE_ID_BOUTON = "msgComposeOpenPaneButton";
-var PRIORITE_REGEX = /\[(URGENT|P1|P2|P3|CONFIDENTIEL)(?:-(M|R)-(\d+))?\]/i;
+var PRIORITE_REGEX = /\[(?:(CONFIDENTIEL)(?:_([MR])_(\d+))?|(?:([MR])_(\d+)_)?(URGENT|P1|P2|P3))\]/i;
 
 /** Lit un paramètre de l'utilisateur, avec une valeur par défaut. */
 function prioriteParametre(nom, defaut) {
