@@ -255,3 +255,14 @@ body.dialogue { padding: 20px 20px 16px; }
 @media (prefers-reduced-motion: reduce) {
   .niveau { transition: none; }
 }
+
+/* ---------- Journal de diagnostic ---------- */
+
+.journal { margin-top: 16px; font-size: 13px; }
+.journal summary { cursor: pointer; color: var(--texte-2); }
+.journal pre {
+  margin: 8px 0; padding: 8px; max-height: 220px; overflow: auto;
+  background: var(--fond-2); border-radius: 6px;
+  font-family: Consolas, "Cascadia Mono", monospace; font-size: 11px;
+  white-space: pre-wrap; word-break: break-word;
+}
