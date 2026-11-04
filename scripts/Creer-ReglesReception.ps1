@@ -5,11 +5,14 @@
 
 .DESCRIPTION
     Règles créées (nom → mots recherchés dans l'objet → catégorie) :
-      Priorité - URGENT        [URGENT]        _URGENT]        URGENT
-      Priorité - P1            [P1]            _P1]            P1
-      Priorité - P2            [P2]            _P2]            P2
-      Priorité - P3            [P3]            _P3]            P3
+      Priorité - URGENT        [URGENT]        _URGENT]        Priorité · Urgent
+      Priorité - P1            [P1]            _P1]            Priorité · P1
+      Priorité - P2            [P2]            _P2]            Priorité · P2
+      Priorité - P3            [P3]            _P3]            Priorité · P3
       Priorité - CONFIDENTIEL  [CONFIDENTIEL]  [CONFIDENTIEL_  CONFIDENTIEL
+
+    La pastille de couleur placée devant la balise (🟠 etc.) n'est pas
+    nécessaire à la règle : une balise tapée à la main est reconnue.
 
     Les deux formes couvrent [P1] et [M_12345_P1] / [R_12345_P1], ainsi que
     [CONFIDENTIEL] et [CONFIDENTIEL_M_12345].
@@ -51,6 +54,13 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $Niveaux = @('URGENT', 'P1', 'P2', 'P3', 'CONFIDENTIEL')
+$NomsCategories = @{
+    'URGENT'       = 'Priorité · Urgent'
+    'P1'           = 'Priorité · P1'
+    'P2'           = 'Priorité · P2'
+    'P3'           = 'Priorité · P3'
+    'CONFIDENTIEL' = 'CONFIDENTIEL'
+}
 $PrefixeRegle = 'Priorité - '
 
 # ---------- Journal ----------
@@ -95,7 +105,7 @@ foreach ($boite in $Boites) {
                 if ($PSCmdlet.ShouldProcess($boite, "Mettre à jour la règle « $nom »")) {
                     Set-InboxRule -Identity $existante.Identity `
                         -SubjectContainsWords $mots `
-                        -ApplyCategory $niveau `
+                        -ApplyCategory $NomsCategories[$niveau] `
                         -StopProcessingRules $false `
                         -Force -Confirm:$false
                     Write-Journal "$boite : règle « $nom » mise à jour"
@@ -105,7 +115,7 @@ foreach ($boite in $Boites) {
                 if ($PSCmdlet.ShouldProcess($boite, "Créer la règle « $nom »")) {
                     New-InboxRule -Mailbox $boite -Name $nom `
                         -SubjectContainsWords $mots `
-                        -ApplyCategory $niveau `
+                        -ApplyCategory $NomsCategories[$niveau] `
                         -StopProcessingRules $false `
                         -Force | Out-Null
                     Write-Journal "$boite : règle « $nom » créée"

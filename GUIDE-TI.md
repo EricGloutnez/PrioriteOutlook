@@ -4,7 +4,7 @@ Ce guide s'adresse à un administrateur Microsoft 365 qui ne connaît pas le pro
 
 ## 1. Résumé
 
-« Priorité Bonneville » est un complément Web pour Outlook. Pendant la rédaction, l'expéditeur choisit un niveau (Urgent, P1, P2, P3, Confidentiel) et, au besoin, un numéro de projet. Le complément écrit une balise dans l'objet, par exemple `[M_12345_P1] Objet` ou `[CONFIDENTIEL_M_12345] Objet`. Chez les destinataires de Bonneville, des règles de réception côté serveur appliquent une catégorie de couleur selon la balise.
+« Priorité Bonneville » est un complément Web pour Outlook. Pendant la rédaction, l'expéditeur choisit un niveau (Urgent, P1, P2, P3, Confidentiel) et, au besoin, un numéro de projet. Le complément écrit une balise dans l'objet, précédée d'une pastille de couleur, par exemple `🟠 [M_12345_P1] Objet` ou `🟣 [CONFIDENTIEL_M_12345] Objet`. Chez les destinataires de Bonneville, des règles de réception côté serveur appliquent une catégorie réservée : « Priorité · Urgent », « Priorité · P1 », « Priorité · P2 », « Priorité · P3 » ou « CONFIDENTIEL ». Les catégories personnelles des employés ne sont jamais modifiées.
 
 Ce qu'il fait : il lit et modifie l'objet du courriel en cours de rédaction, affiche une bannière à la création et un rappel à l'envoi si aucune priorité n'est choisie (sans jamais bloquer l'envoi), et enregistre trois préférences par utilisateur dans sa boîte aux lettres.
 

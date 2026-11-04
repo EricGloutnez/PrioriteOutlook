@@ -2,15 +2,15 @@
 
 Complément Web pour Outlook qui ajoute un niveau de priorité, et au besoin un numéro de projet, dans l'objet des courriels. Chez les destinataires de Bonneville, une règle de réception côté serveur applique une catégorie de couleur selon la balise.
 
-| Niveau | Balise sans projet | Balise avec projet | Couleur |
+| Niveau | Objet sans projet | Objet avec projet | Catégorie chez le destinataire |
 |---|---|---|---|
-| Urgent | `[URGENT] Objet` | `[M_12345_URGENT] Objet` | Rouge |
-| P1 | `[P1] Objet` | `[R_12345_P1] Objet` | Orange |
-| P2 | `[P2] Objet` | `[M_12345_P2] Objet` | Jaune |
-| P3 | `[P3] Objet` | `[R_12345_P3] Objet` | Vert |
-| Confidentiel | `[CONFIDENTIEL] Objet` | `[CONFIDENTIEL_M_12345] Objet` | Mauve |
+| Urgent | `🔴 [URGENT] Objet` | `🔴 [M_12345_URGENT] Objet` | Priorité · Urgent (rouge) |
+| P1 | `🟠 [P1] Objet` | `🟠 [R_12345_P1] Objet` | Priorité · P1 (orange) |
+| P2 | `🟡 [P2] Objet` | `🟡 [M_12345_P2] Objet` | Priorité · P2 (jaune) |
+| P3 | `🟢 [P3] Objet` | `🟢 [R_12345_P3] Objet` | Priorité · P3 (vert) |
+| Confidentiel | `🟣 [CONFIDENTIEL] Objet` | `🟣 [CONFIDENTIEL_M_12345] Objet` | CONFIDENTIEL (mauve) |
 
-M = Multi, R = Résidentiel. Le numéro de projet contient des chiffres seulement. La balise est placée au début de l'objet (après RE: ou TR: dans une réponse ou un transfert), suivie d'un espace ; l'employé écrit ensuite le reste de l'objet. Pour un courriel confidentiel, CONFIDENTIEL passe en avant de tout.
+M = Multi, R = Résidentiel. Le numéro de projet contient des chiffres seulement. La pastille de couleur rend le niveau visible dans la liste des courriels de tous les destinataires, même externes ; elle est remplacée ou retirée avec la balise. La balise est placée au début de l'objet (après RE: ou TR: dans une réponse ou un transfert), suivie d'un espace ; l'employé écrit ensuite le reste de l'objet. Pour un courriel confidentiel, CONFIDENTIEL passe en avant de tout.
 
 Le complément fonctionne dans l'Outlook classique et le nouvel Outlook pour Windows, en rédaction. Sur Android et iPhone, la balise se tape à la main dans l'objet ; les règles de réception la reconnaissent de la même façon.
 
@@ -74,7 +74,7 @@ gh api -X POST repos/EricGloutnez/PrioriteOutlook/pages -f "source[branch]=main"
 
 Les couleurs viennent des catégories et des règles de réception. Pour l'essai, deux possibilités.
 
-Dans Outlook : créer les catégories URGENT, P1, P2, P3 et CONFIDENTIEL avec leur couleur, puis une règle par niveau, « si l'objet contient `[P1]` ou `_P1]`, classer dans la catégorie P1 » (pour Confidentiel : `[CONFIDENTIEL]` ou `[CONFIDENTIEL_`).
+Dans Outlook : créer les catégories « Priorité · Urgent », « Priorité · P1 », « Priorité · P2 », « Priorité · P3 » et « CONFIDENTIEL » avec leur couleur, puis une règle par niveau, « si l'objet contient `[P1]` ou `_P1]`, classer dans la catégorie P1 » (pour Confidentiel : `[CONFIDENTIEL]` ou `[CONFIDENTIEL_`).
 
 Par PowerShell, sur votre propre boîte, si votre compte le permet :
 

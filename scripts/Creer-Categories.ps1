@@ -4,8 +4,10 @@
     boîtes aux lettres ciblées, via Microsoft Graph PowerShell.
 
 .DESCRIPTION
-    Catégories : URGENT (rouge), P1 (orange), P2 (jaune), P3 (vert),
-    CONFIDENTIEL (mauve).
+    Catégories : « Priorité · Urgent » (rouge), « Priorité · P1 » (orange),
+    « Priorité · P2 » (jaune), « Priorité · P3 » (vert), « CONFIDENTIEL » (mauve).
+    Les noms sont réservés au système de priorité : les catégories
+    personnelles des employés ne sont jamais modifiées.
     - Une catégorie existante n'est pas dupliquée ; sa couleur est
       corrigée au besoin.
     - Idempotent : peut être relancé sans effet indésirable.
@@ -46,11 +48,11 @@ $ErrorActionPreference = 'Stop'
 # Couleurs Graph : preset0 rouge, preset1 orange, preset3 jaune,
 # preset4 vert, preset8 mauve
 $Categories = [ordered]@{
-    'URGENT'       = 'preset0'
-    'P1'           = 'preset1'
-    'P2'           = 'preset3'
-    'P3'           = 'preset4'
-    'CONFIDENTIEL' = 'preset8'
+    'Priorité · Urgent' = 'preset0'
+    'Priorité · P1'     = 'preset1'
+    'Priorité · P2'     = 'preset3'
+    'Priorité · P3'     = 'preset4'
+    'CONFIDENTIEL'      = 'preset8'
 }
 
 # ---------- Journal ----------

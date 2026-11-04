@@ -8,10 +8,12 @@
  *    aucune balise, propose de choisir une priorité ou d'envoyer
  *    quand même. L'envoi n'est jamais bloqué.
  *
- * Règle de sécurité : chaque gestionnaire appelle event.completed()
- * dans TOUS les cas, y compris en cas d'erreur (try/catch) et après un
- * délai maximal. Sans cela, Outlook affiche « … prend plus de temps que
- * prévu » au moment de l'envoi.
+ * Règles de sécurité :
+ *  - chaque gestionnaire appelle event.completed() dans TOUS les cas, y
+ *    compris en cas d'erreur (try/catch) et après un délai maximal ;
+ *  - la page appelle toujours Office.onReady (voir la fin du fichier).
+ *  Sans l'un ou l'autre, Outlook affiche « … prend plus de temps que
+ *  prévu » au moment de l'envoi.
  *
  * Les deux événements respectent le paramètre « Bannière et rappel à
  * l'envoi » de l'utilisateur (roamingSettings, clé banniereActive).
@@ -28,30 +30,6 @@ var PRIORITE_ID_BOUTON = "msgComposeOpenPaneButton";
 var PRIORITE_REGEX = /\[(?:(CONFIDENTIEL)(?:_([MR])_(\d+))?|(?:([MR])_(\d+)_)?(URGENT|P1|P2|P3))\]/i;
 var PRIORITE_DELAI_MAX_MS = 4000;
 
-/*
- * Journal de diagnostic : les 30 dernières entrées sont gardées dans le
- * stockage local du navigateur (partagé avec le panneau, même origine),
- * et affichées dans les paramètres du panneau. Sans effet si le stockage
- * n'existe pas (Outlook classique, environnement JavaScript seul).
- */
-function prioriteJournal(message) {
-  try {
-    var cle = "prioriteJournal";
-    var entrees = JSON.parse(localStorage.getItem(cle) || "[]");
-    entrees.push(new Date().toTimeString().slice(0, 8) + "  " + message);
-    localStorage.setItem(cle, JSON.stringify(entrees.slice(-30)));
-  } catch (e) { /* stockage indisponible */ }
-}
-
-prioriteJournal("launchevent.js chargé (Office " + (typeof Office) +
-  ", actions " + (typeof Office !== "undefined" && Office.actions ? "présent" : "absent") + ")");
-
-if (typeof window !== "undefined" && window.addEventListener) {
-  window.addEventListener("error", function (e) {
-    prioriteJournal("ERREUR JS : " + (e && e.message ? e.message : "inconnue"));
-  });
-}
-
 /**
  * Enveloppe event.completed pour qu'il ne soit appelé qu'une seule fois,
  * et automatiquement après PRIORITE_DELAI_MAX_MS si rien ne l'a fait.
@@ -62,19 +40,14 @@ function prioriteTerminaison(event, optionsParDefaut) {
     if (fait) return;
     fait = true;
     clearTimeout(minuterie);
-    prioriteJournal("event.completed(" + (options ? JSON.stringify({ allowEvent: options.allowEvent }) : "") + ")");
     try {
       if (options) { event.completed(options); } else { event.completed(); }
     } catch (e) {
-      prioriteJournal("ERREUR completed : " + e.message);
       // Dernier recours : terminer sans options.
       try { event.completed(); } catch (e2) { /* rien d'autre à faire */ }
     }
   }
-  var minuterie = setTimeout(function () {
-    prioriteJournal("délai maximal atteint");
-    terminer(optionsParDefaut);
-  }, PRIORITE_DELAI_MAX_MS);
+  var minuterie = setTimeout(function () { terminer(optionsParDefaut); }, PRIORITE_DELAI_MAX_MS);
   return terminer;
 }
 
@@ -114,7 +87,6 @@ function prioriteAfficherBanniere(texteBalise, terminer) {
 
   try {
     item.notificationMessages.replaceAsync(PRIORITE_ID_NOTIFICATION, avecAction, function (r) {
-      prioriteJournal("bannière : " + r.status + (r.error ? " (" + r.error.message + ")" : ""));
       if (r.status === Office.AsyncResultStatus.Succeeded) {
         terminer();
         return;
@@ -138,7 +110,6 @@ function prioriteAfficherBanniere(texteBalise, terminer) {
 
 /** Événement : création d'un nouveau message, d'une réponse ou d'un transfert. */
 function onNewMessageComposeHandler(event) {
-  prioriteJournal("OnNewMessageCompose reçu");
   var terminer = prioriteTerminaison(event, null);
   try {
     if (!prioriteBanniereActive()) {
@@ -161,7 +132,6 @@ function onNewMessageComposeHandler(event) {
 
 /** Événement : envoi du message (Smart Alerts). */
 function onMessageSendHandler(event) {
-  prioriteJournal("OnMessageSend reçu");
   // En cas de doute (erreur, délai dépassé), l'envoi est toujours permis.
   var terminer = prioriteTerminaison(event, { allowEvent: true });
   try {
@@ -196,10 +166,6 @@ function onMessageSendHandler(event) {
 }
 
 // Association des gestionnaires aux noms déclarés dans le manifeste.
-// Dans Outlook sur le Web et le nouvel Outlook, Office.actions peut ne
-// pas encore exister au chargement de ce fichier : on réessaie alors
-// dans Office.onReady. Sans association, Outlook attend une réponse qui
-// ne vient jamais (« … prend plus de temps que prévu »).
 var prioriteAssocie = false;
 function prioriteAssocier() {
   if (prioriteAssocie) return;
@@ -207,19 +173,14 @@ function prioriteAssocier() {
   Office.actions.associate("onNewMessageComposeHandler", onNewMessageComposeHandler);
   Office.actions.associate("onMessageSendHandler", onMessageSendHandler);
   prioriteAssocie = true;
-  prioriteJournal("gestionnaires associés");
 }
 prioriteAssocier();
 
 // Poignée de main avec Outlook : la page doit signaler qu'elle est prête
 // avec Office.onReady. Sans cet appel, Outlook sur le Web et le nouvel
-// Outlook chargent la page mais n'appellent jamais les gestionnaires
-// (constaté dans le journal : « gestionnaires associés », puis rien).
+// Outlook chargent la page mais n'appellent jamais les gestionnaires.
 // Dans l'Outlook classique (JavaScript seul), Office.onReady peut ne pas
 // exister : l'association immédiate suffit.
 if (typeof Office !== "undefined" && typeof Office.onReady === "function") {
-  Office.onReady(function (info) {
-    prioriteJournal("Office.onReady appelé (" + (info && info.host ? info.host : "hôte inconnu") + ")");
-    prioriteAssocier();
-  });
+  Office.onReady(prioriteAssocier);
 }

@@ -137,15 +137,16 @@
 
   /** Écrit la balise dans l'objet et met l'affichage à jour. */
   function appliquerBalise(niveau, type, numero) {
-    var balise;
+    var balise, marque;
     try {
       balise = PrioriteTag.construire(niveau, numero ? type : null, numero || null);
+      marque = PrioriteTag.marque(niveau, numero ? type : null, numero || null);
     } catch (e) {
       $("statut").textContent = e.message;
       return;
     }
     lireObjet(function (objet) {
-      var nouvel = PrioriteTag.appliquer(objet, balise);
+      var nouvel = PrioriteTag.appliquer(objet, marque);
       ecrireObjet(nouvel, function () {
         etat.niveau = niveau;
         etat.type = numero ? type : etat.type;
@@ -254,15 +255,8 @@
       r.checked = r.value === typeDefaut;
     });
     $("statutParametres").textContent = "";
-    afficherJournal();
     $("vuePrincipale").hidden = true;
     $("vueParametres").hidden = false;
-  }
-
-  function afficherJournal() {
-    var entrees = [];
-    try { entrees = JSON.parse(localStorage.getItem("prioriteJournal") || "[]"); } catch (e) { /* rien */ }
-    $("journalTexte").textContent = entrees.length ? entrees.join("\n") : "Aucune entrée.";
   }
 
   function fermerParametres() {
@@ -281,10 +275,6 @@
     $("btnRetirer").addEventListener("click", retirer);
     $("btnParametres").addEventListener("click", ouvrirParametres);
     $("btnRetour").addEventListener("click", fermerParametres);
-    $("btnEffacerJournal").addEventListener("click", function () {
-      try { localStorage.removeItem("prioriteJournal"); } catch (e) { /* rien */ }
-      afficherJournal();
-    });
 
     $("paramBanniere").addEventListener("change", function (e) {
       enregistrerParametre("banniereActive", e.target.checked);
