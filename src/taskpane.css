@@ -4,17 +4,24 @@
   --fond: #ffffff;
   --fond-2: #f5f5f4;
   --trait: #d6d4d1;
+  --trait-fort: #a19f9d;
   --accent: #0f5ea8;
   --accent-texte: #ffffff;
   --erreur: #b3261e;
-  --anneau: #1f1f1f;
+  --choisi: #1f1f1f;
 
   --urgent: #c62828;
   --p1: #e46c0a;
   --p2: #f3c623;
   --p3: #2e7d32;
   --confidentiel: #6a3fa0;
-  --sur-p2: #3a2e00;
+
+  /* Texte des puces teintées (plus foncé que la couleur du niveau) */
+  --urgent-texte: #8e1c1c;
+  --p1-texte: #9a4a06;
+  --p2-texte: #6e5700;
+  --p3-texte: #1f5a22;
+  --confidentiel-texte: #4b2c73;
 
   color-scheme: light;
 }
@@ -26,10 +33,17 @@
     --fond: #1f1f1f;
     --fond-2: #2a2a2a;
     --trait: #45433f;
+    --trait-fort: #7a7874;
     --accent: #4ea1f0;
     --accent-texte: #0b1a2a;
     --erreur: #f2938b;
-    --anneau: #ffffff;
+    --choisi: #ffffff;
+
+    --urgent-texte: #f4a3a3;
+    --p1-texte: #f6b27a;
+    --p2-texte: #f6dc7a;
+    --p3-texte: #9fd3a2;
+    --confidentiel-texte: #c9b3ec;
     color-scheme: dark;
   }
 }
@@ -53,11 +67,13 @@ body {
   clip: rect(0 0 0 0); white-space: nowrap;
 }
 
+/* ---------- En-tête ---------- */
+
 .entete {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
-  margin-bottom: 6px;
+  margin-bottom: 12px;
 }
-.entete h1 { font-size: 17px; font-weight: 600; margin: 0; flex: 1; }
+.entete h1 { font-size: 16px; font-weight: 600; margin: 0; flex: 1; }
 
 .bouton-icone {
   width: 32px; height: 32px; border: 0; border-radius: 6px;
@@ -67,56 +83,80 @@ body {
 .bouton-icone svg { width: 20px; height: 20px; fill: currentColor; }
 .bouton-icone:hover { background: var(--fond-2); color: var(--texte); }
 
-.apercu {
-  margin: 0 0 14px;
-  color: var(--texte-2);
-  font-size: 13px;
-  min-height: 19px;
+/* ---------- Aperçu de l'objet ---------- */
+
+.apercu-objet {
+  border: 1px solid var(--trait);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 14px;
 }
-.apercu code {
+.apercu-titre {
+  display: block;
   font-family: Consolas, "Cascadia Mono", monospace;
-  font-size: 13px;
-  color: var(--texte);
+  font-size: 12px;
+  color: var(--texte-2);
+  margin-bottom: 6px;
+}
+.apercu-ligne { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.puce-balise {
+  flex-shrink: 0;
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 6px;
   background: var(--fond-2);
-  padding: 1px 6px;
-  border-radius: 4px;
+  color: var(--texte-2);
+  max-width: 100%;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.apercu-reste {
+  color: var(--texte-2); font-size: 13px; min-width: 0;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
-/* Les cinq niveaux : l'élément central du panneau */
+/* Teintes de la puce selon le niveau */
+.puce-balise[data-niveau="URGENT"]       { background: color-mix(in srgb, var(--urgent) 16%, var(--fond)); color: var(--urgent-texte); }
+.puce-balise[data-niveau="P1"]           { background: color-mix(in srgb, var(--p1) 18%, var(--fond)); color: var(--p1-texte); }
+.puce-balise[data-niveau="P2"]           { background: color-mix(in srgb, var(--p2) 28%, var(--fond)); color: var(--p2-texte); }
+.puce-balise[data-niveau="P3"]           { background: color-mix(in srgb, var(--p3) 16%, var(--fond)); color: var(--p3-texte); }
+.puce-balise[data-niveau="CONFIDENTIEL"] { background: color-mix(in srgb, var(--confidentiel) 16%, var(--fond)); color: var(--confidentiel-texte); }
+
+/* ---------- Niveaux : boutons neutres avec pastille de couleur ---------- */
+
 .niveaux {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
 }
 .niveau {
-  position: relative;
-  min-height: 52px;
-  border: 0;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 38px;
+  padding: 0 4px;
+  border: 1px solid var(--trait-fort);
   border-radius: 8px;
+  background: var(--fond);
+  color: var(--texte);
   font: inherit;
-  font-size: 16px;
   font-weight: 600;
-  color: #ffffff;
   cursor: pointer;
-  outline: 3px solid transparent;
-  outline-offset: 2px;
-  transition: transform 80ms ease-out, outline-color 80ms ease-out;
+  transition: background 80ms ease-out, border-color 80ms ease-out;
 }
+.niveau:hover { background: var(--fond-2); }
 .niveau:active { transform: scale(0.98); }
-.niveau-urgent { grid-column: 1 / -1; background: var(--urgent); }
-.niveau-p1 { background: var(--p1); }
-.niveau-p2 { background: var(--p2); color: var(--sur-p2); }
-.niveau-p3 { background: var(--p3); }
-.niveau-confidentiel { background: var(--confidentiel); }
-
-.niveau[aria-checked="true"] { outline-color: var(--anneau); }
-.niveau[aria-checked="true"]::after {
-  content: "";
-  position: absolute; top: 8px; right: 10px;
-  width: 8px; height: 14px;
-  border: solid currentColor; border-width: 0 3px 3px 0;
-  transform: rotate(45deg);
+.niveau[aria-checked="true"] {
+  background: var(--fond-2);
+  border: 2px solid var(--choisi);
 }
+.niveau-large { grid-column: 1 / -1; }
+
+.pastille-couleur { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.c-urgent { background: var(--urgent); }
+.c-p1 { background: var(--p1); }
+.c-p2 { background: var(--p2); }
+.c-p3 { background: var(--p3); }
+.cadenas { width: 16px; height: 16px; fill: var(--confidentiel); flex-shrink: 0; }
+
 .niveau:focus-visible, .type:focus-visible, .bouton:focus-visible,
 .lien:focus-visible, .bouton-icone:focus-visible {
   outline: 2px solid var(--accent);
@@ -126,17 +166,68 @@ body {
 .erreur { color: var(--erreur); font-size: 13px; margin: 6px 0 0; min-height: 18px; }
 .erreur:empty { min-height: 0; margin: 0; }
 
+/* ---------- Ligne du projet ---------- */
+
+.ligne-projet {
+  display: flex; align-items: center; gap: 8px;
+  margin-top: 14px;
+  padding: 9px 12px;
+  background: var(--fond-2);
+  border-radius: 8px;
+}
+.icone-projet { width: 18px; height: 18px; fill: var(--texte-2); flex-shrink: 0; }
+.projet-texte { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
 .lien {
-  margin: 14px 0 0; padding: 0; border: 0; background: none;
+  padding: 0; border: 0; background: none;
   color: var(--accent); font: inherit; font-size: 13px; cursor: pointer;
   text-decoration: underline; text-underline-offset: 2px;
 }
 
-.projet { margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--trait); }
-.projet h2 { font-size: 14px; font-weight: 600; margin: 0 0 8px; }
-.facultatif { font-weight: 400; color: var(--texte-2); margin-left: 4px; }
+/* ---------- Boutons ---------- */
 
-.types { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
+.bouton {
+  min-height: 34px; padding: 0 16px; border-radius: 6px; font: inherit; cursor: pointer;
+  border: 1px solid var(--trait); background: var(--fond); color: var(--texte);
+}
+.bouton:hover { background: var(--fond-2); }
+.bouton-principal { background: var(--accent); border-color: var(--accent); color: var(--accent-texte); font-weight: 600; }
+.bouton-principal:hover { background: var(--accent); filter: brightness(1.08); }
+
+.statut { font-size: 13px; color: var(--texte-2); margin: 10px 0 0; min-height: 18px; }
+
+/* ---------- Paramètres ---------- */
+
+.bascule {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  padding: 12px 0; border-bottom: 1px solid var(--trait); cursor: pointer;
+}
+.bascule-texte { display: grid; gap: 2px; }
+.bascule-texte small { color: var(--texte-2); font-size: 12px; }
+.bascule input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
+
+.choix-defaut { border: 0; padding: 12px 0 0; margin: 0; display: grid; gap: 6px; }
+.choix-defaut legend { padding: 0 0 6px; }
+.choix-defaut label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.choix-defaut input { accent-color: var(--accent); }
+
+/* ---------- Fenêtre « Numéro de projet » ---------- */
+
+body.dialogue { padding: 20px 20px 16px; }
+.entete-dialogue { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.entete-dialogue h1 { font-size: 17px; font-weight: 600; margin: 0; }
+.pastille {
+  display: inline-block; padding: 3px 10px; border-radius: 6px;
+  font-weight: 600; font-size: 13px; color: #ffffff;
+}
+.pastille.niveau-urgent { background: var(--urgent); }
+.pastille.niveau-p1 { background: var(--p1); }
+.pastille.niveau-p2 { background: var(--p2); color: #3a2e00; }
+.pastille.niveau-p3 { background: var(--p3); }
+.pastille.niveau-confidentiel { background: var(--confidentiel); }
+
+.types { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
 .type {
   min-height: 36px; border-radius: 6px; font: inherit; cursor: pointer;
   border: 1px solid var(--trait); background: var(--fond); color: var(--texte);
@@ -156,49 +247,11 @@ body {
 }
 .champ input:focus { outline: 2px solid var(--accent); outline-offset: 0; border-color: transparent; }
 
-.actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 20px; }
-.bouton {
-  min-height: 34px; padding: 0 16px; border-radius: 6px; font: inherit; cursor: pointer;
-  border: 1px solid var(--trait); background: var(--fond); color: var(--texte);
-}
-.bouton:hover { background: var(--fond-2); }
-.bouton-principal { background: var(--accent); border-color: var(--accent); color: var(--accent-texte); font-weight: 600; }
-.bouton-principal:hover { background: var(--accent); filter: brightness(1.08); }
-
-.statut { font-size: 13px; color: var(--texte-2); margin: 10px 0 0; min-height: 18px; }
-
-/* Paramètres */
-.bascule {
-  display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
-  padding: 12px 0; border-bottom: 1px solid var(--trait); cursor: pointer;
-}
-.bascule-texte { display: grid; gap: 2px; }
-.bascule-texte small { color: var(--texte-2); font-size: 12px; }
-.bascule input { width: 18px; height: 18px; margin-top: 2px; accent-color: var(--accent); flex-shrink: 0; }
-
-.choix-defaut { border: 0; padding: 12px 0 0; margin: 0; display: grid; gap: 6px; }
-.choix-defaut legend { padding: 0 0 6px; }
-.choix-defaut label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.choix-defaut input { accent-color: var(--accent); }
-
-@media (prefers-reduced-motion: reduce) {
-  .niveau { transition: none; }
-}
-
-/* Actions du panneau : lien à gauche, Retirer à droite */
-.actions-panneau { justify-content: space-between; align-items: center; }
-.actions-panneau .lien { margin: 0; }
-
-/* Fenêtre « Numéro de projet » */
-body.dialogue { padding: 20px 20px 16px; }
-.entete-dialogue { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
-.entete-dialogue h1 { font-size: 17px; font-weight: 600; margin: 0; }
-.pastille {
-  display: inline-block; padding: 3px 10px; border-radius: 6px;
-  font-weight: 600; font-size: 13px; color: #ffffff;
-}
-body.dialogue .types { margin-bottom: 12px; }
 .apercu-dialogue {
   margin: 10px 0 0; min-height: 19px; font-size: 13px; color: var(--texte-2);
   font-family: Consolas, "Cascadia Mono", monospace;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .niveau { transition: none; }
 }

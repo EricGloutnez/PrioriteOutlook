@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Priorité Bonneville</title>
   <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
-  <link rel="stylesheet" href="taskpane.css?v=4">
+  <link rel="stylesheet" href="taskpane.css?v=7">
 </head>
 <body>
   <main id="vuePrincipale">
@@ -17,22 +17,35 @@
       </button>
     </header>
 
-    <p class="apercu" id="apercu" aria-live="polite">Aucune priorité choisie</p>
+    <section class="apercu-objet" aria-label="Aperçu de l'objet">
+      <span class="apercu-titre">Objet</span>
+      <div class="apercu-ligne">
+        <span class="puce-balise" id="puceBalise">Aucune priorité</span>
+        <span class="apercu-reste" id="apercuReste"></span>
+      </div>
+    </section>
 
     <section aria-labelledby="titreNiveaux">
       <h2 id="titreNiveaux" class="visuellement-cache">Niveau de priorité</h2>
       <div class="niveaux" role="radiogroup" aria-labelledby="titreNiveaux">
-        <button type="button" class="niveau niveau-urgent" role="radio" aria-checked="false" data-niveau="URGENT">Urgent</button>
-        <button type="button" class="niveau niveau-p1" role="radio" aria-checked="false" data-niveau="P1">P1</button>
-        <button type="button" class="niveau niveau-p2" role="radio" aria-checked="false" data-niveau="P2">P2</button>
-        <button type="button" class="niveau niveau-p3" role="radio" aria-checked="false" data-niveau="P3">P3</button>
-        <button type="button" class="niveau niveau-confidentiel" role="radio" aria-checked="false" data-niveau="CONFIDENTIEL">Confidentiel</button>
+        <button type="button" class="niveau" role="radio" aria-checked="false" data-niveau="URGENT" title="Urgent"><span class="pastille-couleur c-urgent" aria-hidden="true"></span>Urg.</button>
+        <button type="button" class="niveau" role="radio" aria-checked="false" data-niveau="P1"><span class="pastille-couleur c-p1" aria-hidden="true"></span>P1</button>
+        <button type="button" class="niveau" role="radio" aria-checked="false" data-niveau="P2"><span class="pastille-couleur c-p2" aria-hidden="true"></span>P2</button>
+        <button type="button" class="niveau" role="radio" aria-checked="false" data-niveau="P3"><span class="pastille-couleur c-p3" aria-hidden="true"></span>P3</button>
+        <button type="button" class="niveau niveau-large" role="radio" aria-checked="false" data-niveau="CONFIDENTIEL">
+          <svg class="cadenas" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3h1a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1h1Zm2 0h6V7a3 3 0 0 0-6 0v3Zm3 4a1.5 1.5 0 0 0-1 2.6V18h2v-1.4A1.5 1.5 0 0 0 12 14Z"/></svg>Confidentiel
+        </button>
       </div>
       <p class="erreur" id="erreurNiveau" role="alert"></p>
     </section>
 
-    <div class="actions actions-panneau">
-      <button type="button" class="lien" id="lienAjouterProjet">Ajouter un projet</button>
+    <div class="ligne-projet">
+      <svg class="icone-projet" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v4h4a1 1 0 0 1 1 1v11h1v2H3v-2h1Zm2 0h7V6H6v15Zm9 0h3v-10h-3v10ZM8 8h3v2H8V8Zm0 4h3v2H8v-2Zm0 4h3v2H8v-2Z"/></svg>
+      <span class="projet-texte" id="projetTexte">Aucun projet</span>
+      <button type="button" class="lien" id="lienProjet">Ajouter</button>
+    </div>
+
+    <div class="actions">
       <button type="button" class="bouton" id="btnRetirer">Retirer</button>
     </div>
     <p class="statut" id="statut" aria-live="polite"></p>
@@ -57,7 +70,7 @@
     <label class="bascule">
       <span class="bascule-texte">
         <span>Demander un numéro de projet</span>
-        <small>Ouvre la fenêtre du projet après le choix du niveau. Sinon, le lien « Ajouter un projet » reste disponible au besoin.</small>
+        <small>Ouvre la fenêtre du projet après le choix du niveau. Sinon, le lien « Ajouter » de la ligne Projet reste disponible au besoin.</small>
       </span>
       <input type="checkbox" id="paramProjet">
     </label>
@@ -72,7 +85,7 @@
     <p class="statut" id="statutParametres" aria-live="polite"></p>
   </section>
 
-  <script src="tag.js?v=4"></script>
-  <script src="taskpane.js?v=4"></script>
+  <script src="tag.js?v=7"></script>
+  <script src="taskpane.js?v=7"></script>
 </body>
 </html>

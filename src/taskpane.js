@@ -7,8 +7,8 @@
  *    actuelle contient déjà un projet), la fenêtre « Numéro de projet »
  *    (dialog.html) s'ouvre d'abord : Appliquer = niveau + projet,
  *    Passer = niveau seul, fermeture par le X = rien n'est modifié.
- *  - Le lien « Ajouter un projet » ouvre la même fenêtre pour le niveau
- *    choisi.
+ *  - Le lien de la ligne Projet (« Ajouter » ou « Modifier ») ouvre la
+ *    même fenêtre pour le niveau choisi.
  *
  * Paramètres de l'utilisateur (roamingSettings) :
  *   banniereActive  (booléen, défaut true)   bannière + rappel à l'envoi
@@ -23,7 +23,8 @@
   var ID_NOTIFICATION = "prioriteBonneville";
   var ID_BOUTON = "msgComposeOpenPaneButton";
   var DEFAUTS = { banniereActive: true, demanderProjet: false, typeDefaut: "" };
-  var VERSION_FICHIERS = "4";
+  var VERSION_FICHIERS = "7";
+  var LIBELLES_TYPE = { M: "Multi", R: "Résidentiel" };
 
   var etat = { niveau: null, type: null, numero: null };
   var dialogue = null;
@@ -53,17 +54,29 @@
     });
   }
 
+  /** Aperçu de l'objet : puce colorée de la balise + reste de l'objet. */
   function majApercu(objet) {
     var balise = PrioriteTag.lire(objet);
-    var p = $("apercu");
-    p.textContent = "";
+    var puce = $("puceBalise");
     if (balise) {
-      p.appendChild(document.createTextNode("Balise actuelle : "));
-      var code = document.createElement("code");
-      code.textContent = balise.texte.toUpperCase();
-      p.appendChild(code);
+      puce.textContent = balise.texte.toUpperCase();
+      puce.setAttribute("data-niveau", balise.niveau);
     } else {
-      p.textContent = "Aucune priorité choisie";
+      puce.textContent = "Aucune priorité";
+      puce.removeAttribute("data-niveau");
+    }
+    var reste = balise ? PrioriteTag.retirer(objet) : objet;
+    $("apercuReste").textContent = reste || "";
+  }
+
+  /** Ligne du projet : « Multi · 11111 » + Modifier, ou « Aucun projet » + Ajouter. */
+  function majProjet() {
+    if (etat.numero && etat.type) {
+      $("projetTexte").textContent = (LIBELLES_TYPE[etat.type] || etat.type) + " · " + etat.numero;
+      $("lienProjet").textContent = "Modifier";
+    } else {
+      $("projetTexte").textContent = "Aucun projet";
+      $("lienProjet").textContent = "Ajouter";
     }
   }
 
@@ -138,6 +151,7 @@
         etat.type = numero ? type : etat.type;
         etat.numero = numero || null;
         majNiveaux();
+        majProjet();
         majApercu(nouvel);
         majBanniere(balise);
         $("statut").textContent = "Balise appliquée : " + balise;
@@ -222,6 +236,7 @@
         etat.numero = null;
         etat.type = null;
         majNiveaux();
+        majProjet();
         majApercu(nouvel);
         majBanniere(null);
         $("statut").textContent = "Balise retirée";
@@ -255,7 +270,7 @@
       b.addEventListener("click", function () { choisirNiveau(b.dataset.niveau); });
     });
 
-    $("lienAjouterProjet").addEventListener("click", ajouterProjet);
+    $("lienProjet").addEventListener("click", ajouterProjet);
     $("btnRetirer").addEventListener("click", retirer);
     $("btnParametres").addEventListener("click", ouvrirParametres);
     $("btnRetour").addEventListener("click", fermerParametres);
@@ -286,6 +301,7 @@
         etat.numero = balise.numero;
       }
       majNiveaux();
+      majProjet();
       majApercu(objet);
     });
   }
