@@ -210,10 +210,16 @@ function prioriteAssocier() {
   prioriteJournal("gestionnaires associés");
 }
 prioriteAssocier();
-if (!prioriteAssocie && typeof Office !== "undefined" && typeof Office.onReady === "function") {
-  prioriteJournal("association reportée à Office.onReady");
-  Office.onReady(function () {
-    prioriteJournal("Office.onReady appelé");
+
+// Poignée de main avec Outlook : la page doit signaler qu'elle est prête
+// avec Office.onReady. Sans cet appel, Outlook sur le Web et le nouvel
+// Outlook chargent la page mais n'appellent jamais les gestionnaires
+// (constaté dans le journal : « gestionnaires associés », puis rien).
+// Dans l'Outlook classique (JavaScript seul), Office.onReady peut ne pas
+// exister : l'association immédiate suffit.
+if (typeof Office !== "undefined" && typeof Office.onReady === "function") {
+  Office.onReady(function (info) {
+    prioriteJournal("Office.onReady appelé (" + (info && info.host ? info.host : "hôte inconnu") + ")");
     prioriteAssocier();
   });
 }
